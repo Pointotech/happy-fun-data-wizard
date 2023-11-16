@@ -96,6 +96,24 @@ if (count($missingFileNames)) {
   TEXT;
 }
 
+function expandTilde(string $path): string
+{
+  if (str_starts_with($path, '~')) {
+
+    $command = "echo " . $path;
+    $result = shell_exec($command);
+
+    if ($result === null) {
+      throw new Exception("Failed to run command '$command'.");
+    } else {
+      return trim($result);
+    }
+  } else {
+
+    return $path;
+  }
+}
+
 if (count($missingFileNames)) {
 
   foreach ($missingFileNames as $missingFileName) {
@@ -108,7 +126,11 @@ if (count($missingFileNames)) {
 
       $template = file_get_contents(__DIR__ . "/codeTemplates/$fileToSetUpName");
 
-      $template = str_replace('$happyFunDataWizardDirectory', __DIR__, $template);
+      $currentUserHomeDirectory = expandTilde("~");
+
+      $currentDirectorySimplified = str_replace($currentUserHomeDirectory, "~", __DIR__);
+
+      $template = str_replace('$happyFunDataWizardDirectory', $currentDirectorySimplified, $template);
 
       $didWriteSucceed = file_put_contents($filePathInProject, $template);
 
