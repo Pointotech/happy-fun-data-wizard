@@ -58,7 +58,7 @@ class DatabaseClientConfigurationImplementation implements
       $projectDirectoryPath,
       environmentName: $environmentName
     );
-    $this->validateConfigurationValues($configurationValues);
+    $this->validateConfigurationValues($projectDirectoryPath, $environmentName, $configurationValues);
 
     $this->_host = $configurationValues[self::CONFIGURATION_KEY_DATABASE_HOST];
     $this->_username = $configurationValues[self::CONFIGURATION_KEY_DATABASE_USERNAME];
@@ -85,25 +85,43 @@ class DatabaseClientConfigurationImplementation implements
     self::CONFIGURATION_KEY_DATABASE_TYPE,
   ];
 
-  private function validateConfigurationValues(array $configuration)
-  {
+  private function validateConfigurationValues(
+    string $projectDirectoryPath,
+    string | null $environmentName,
+    array $configuration
+  ): void {
+
     foreach (self::REQUIRED_CONFIGURATION_KEYS as $configurationKey) {
       if (!array_key_exists($configurationKey, $configuration)) {
-        throw new IncorrectConfiguration("One or more environment variables failed assertions: '$configurationKey' is missing.");
+        throw new IncorrectConfiguration(
+          "One or more environment variables failed assertions: '$configurationKey' is missing. "
+            . "Configuration file path: " . $this->getConfigurationFilePath($projectDirectoryPath, $environmentName)
+        );
       }
     }
   }
 
-  private function getConfigurationValues(
+  private function getConfigurationFilePath(
     string $projectDirectoryPath,
     string | null $environmentName
-  ): array {
+  ): string {
+
     $dotEnvFilePath = realpath($projectDirectoryPath)
       . '/' . $this->findDotEnvFileName($environmentName);
 
     if (!file_exists($dotEnvFilePath)) {
       throw new IncorrectConfiguration('File does not exist: "' . $dotEnvFilePath . '".');
     }
+
+    return $dotEnvFilePath;
+  }
+
+  private function getConfigurationValues(
+    string $projectDirectoryPath,
+    string | null $environmentName
+  ): array {
+
+    $dotEnvFilePath = $this->getConfigurationFilePath($projectDirectoryPath, $environmentName);
 
     $dotEnvFileContent = file_get_contents($dotEnvFilePath);
 

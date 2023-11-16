@@ -2,6 +2,8 @@
 
 namespace Pointotech\Schemas;
 
+use Exception;
+
 use Pointotech\Collections\Dictionary;
 use Pointotech\Collections\List_;
 use Pointotech\Configuration\ConfigurationFileReader;
@@ -383,7 +385,7 @@ class BackedUpDataGenerator
 
     $serializedRows = json_encode($tableRows, JSON_PRETTY_PRINT);
     if ($serializedRows === false) {
-      $serializedRows = json_last_error_msg();
+      throw new Exception("Unable to serialize input to JSON. Error: '" . json_last_error_msg() . "'. Input: " . print_r($tableRows, return: true));
     }
 
     file_put_contents(

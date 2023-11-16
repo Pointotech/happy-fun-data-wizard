@@ -5,3 +5,9 @@ things i had to do to get this running:
 improve composerInstall.sh so that it checks for PHP and for Composer and suggests installation instructions for them
 
 add the company/namespace/project name to the back up script message so that it says something like "Back up FooBarCorporation databases" instead of "Back up databases"
+
+interactively ask for database credentials to put in .env during setup
+
+add an option for a base64-encoded password instead of a plain password since some code projects store their credentials this way
+
+make IgnoredDatabaseNames.json optional and document it
