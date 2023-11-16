@@ -122,7 +122,7 @@ if (count($missingFileNames)) {
     $fileToSetUpDescription = $filesToSetUp[$missingFileName];
     $filePathInProject = "$projectDirectoryPath/$fileToSetUpName";
 
-    if (true || !file_exists($filePathInProject)) {
+    if (!file_exists($filePathInProject)) {
 
       $template = file_get_contents(__DIR__ . "/codeTemplates/$fileToSetUpName");
 
