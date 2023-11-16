@@ -115,14 +115,15 @@ if (count($missingFileNames)) {
         throw new Exception("Failed to write to '$filePathInProject'.");
       }
 
-      $chmodCommand = "chmod +x " . escapeshellarg($filePathInProject);
-      $chmodOutput = [];
-      $chmodResultCode = null;
-      exec($chmodCommand, $chmodOutput, $chmodResultCode);
+      if (str_ends_with($fileToSetUpName, '.sh')) {
+        $chmodCommand = "chmod +x " . escapeshellarg($filePathInProject);
+        $chmodOutput = [];
+        $chmodResultCode = null;
+        exec($chmodCommand, $chmodOutput, $chmodResultCode);
 
-      if ($chmodResultCode !== 0) {
-        echo "Error: '$chmodCommand' failed.\n\n";
-        die;
+        if ($chmodResultCode !== 0) {
+          throw new Exception("'$chmodCommand' failed.");
+        }
       }
 
       echo <<<TEXT
