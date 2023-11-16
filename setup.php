@@ -56,6 +56,7 @@ if ($projectDirectoryPath === false) {
 
 $filesToSetUp = [
   '.env' => 'The `.env` project configuration file',
+  '.gitignore' => 'The `.gitignore` Git ignore configuration',
   'backUp.sh' => 'The `backUp.sh` interface for the database backup script',
   'backUp.php' => 'The `backUp.php` implementation of the database backup script',
   'composer.json' => 'The `composer.json` PHP dependencies configuration',
