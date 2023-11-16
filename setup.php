@@ -12,7 +12,20 @@ if (file_exists($autoloadFilePath)) {
   require_once $autoloadFilePath;
 } else {
   echo "\n";
-  die('File does not exist: "' . $autoloadFilePath . '". Run `./composerInstall.sh` to create it.' . "\n\n");
+  echo "'$autoloadFilePath' not found. Running 'composerInstall.sh'...\n";
+  echo "\n";
+
+  $composerInstallPath = __DIR__ . '/composerInstall.sh';
+  $composerInstallOutput = [];
+  $composerInstallResultCode = null;
+  exec($composerInstallPath, $composerInstallOutput, $composerInstallResultCode);
+
+  if ($composerInstallResultCode !== 0) {
+    echo "Error: '$composerInstallPath' failed.\n\n";
+    die;
+  } else {
+    require_once $autoloadFilePath;
+  }
 }
 
 use Pointotech\CommandLine\CommandLineParameters;
@@ -41,27 +54,100 @@ if ($projectDirectoryPath === false) {
     . "The parameter value '$projectDirectoryPathParameter' is not a directory that exists.\n\n");
 }
 
-$dotEnvFilePath = $projectDirectoryPath . '/.env';
+$filesToSetUp = [
+  '.env' => 'The `.env` project configuration file',
+  'backUp.sh' => 'The `backUp.sh` interface for the database backup script',
+  'backUp.php' => 'The `backUp.php` implementation of the database backup script',
+  'composer.json' => 'The `composer.json` PHP dependencies configuration',
+  'composerInstall.sh' => 'The `composerInstall.sh` PHP dependencies installation script',
+];
 
-if (file_exists($dotEnvFilePath)) {
-  echo "
-Project '{$projectDirectoryPath}' is set up.
+$missingFileNames = [];
 
-";
-} else {
-  echo "
-Project '{$projectDirectoryPath}' is not set up. Missing:
-    - The `.env` configuration file.
+foreach ($filesToSetUp as $fileToSetUpName => $fileToSetUpDescription) {
 
-Setting up...
-";
+  $filePathInProject = "$projectDirectoryPath/$fileToSetUpName";
 
-  $exampleDotEnvFileContent = '';
-  file_put_contents($dotEnvFilePath, $exampleDotEnvFileContent);
-
-  echo "The `.env` configuration file was created.`.
-
-Project '{$projectDirectoryPath}' is set up.
-
-";
+  if (true || !file_exists($filePathInProject)) {
+    $missingFileNames[] = $fileToSetUpName;
+  }
 }
+
+if (count($missingFileNames)) {
+
+  echo <<<TEXT
+    
+  Project '{$projectDirectoryPath}' is not set up. Missing:
+
+  TEXT;
+
+  foreach ($missingFileNames as $missingFileName) {
+
+    $fileToSetUpDescription = $filesToSetUp[$missingFileName];
+
+    echo " - $fileToSetUpDescription.\n";
+  }
+
+  echo <<<TEXT
+
+  Setting up...
+  
+  TEXT;
+}
+
+if (count($missingFileNames)) {
+
+  foreach ($missingFileNames as $missingFileName) {
+
+    $fileToSetUpName = $missingFileName;
+    $fileToSetUpDescription = $filesToSetUp[$missingFileName];
+    $filePathInProject = "$projectDirectoryPath/$fileToSetUpName";
+
+    if (true || !file_exists($filePathInProject)) {
+
+      $template = file_get_contents(__DIR__ . "/codeTemplates/$fileToSetUpName");
+
+      $template = str_replace('$happyFunDataWizardDirectory', __DIR__, $template);
+
+      $didWriteSucceed = file_put_contents($filePathInProject, $template);
+
+      if (!$didWriteSucceed) {
+        throw new Exception("Failed to write to '$filePathInProject'.");
+      }
+
+      $chmodCommand = "chmod +x " . escapeshellarg($filePathInProject);
+      $chmodOutput = [];
+      $chmodResultCode = null;
+      exec($chmodCommand, $chmodOutput, $chmodResultCode);
+
+      if ($chmodResultCode !== 0) {
+        echo "Error: '$chmodCommand' failed.\n\n";
+        die;
+      }
+
+      echo <<<TEXT
+      $fileToSetUpDescription was created.
+
+      TEXT;
+    }
+  }
+
+  echo "\n";
+  echo "Running 'composerInstall.sh' in the project...\n";
+  echo "\n";
+
+  $composerInstallPath = "cd $projectDirectoryPath && $projectDirectoryPath/composerInstall.sh";
+  $composerInstallOutput = [];
+  $composerInstallResultCode = null;
+  exec($composerInstallPath, $composerInstallOutput, $composerInstallResultCode);
+
+  if ($composerInstallResultCode !== 0) {
+    echo "Error: '$composerInstallPath' failed.\n\n";
+    die;
+  }
+}
+
+echo "
+Project '{$projectDirectoryPath}' is set up.
+
+";

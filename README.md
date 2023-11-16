@@ -4,13 +4,20 @@ Why manually create schemas, model classes, or backups when you can have a wizar
 
 ## Set up your new adventure 🏰
 
-Getting started is as easy as:
+Gather your adventuring gear:
+
+```bash
+git clone git@github.com:Pointotech/happy-fun-data-wizard
+cd happy-fun-data-wizard
+```
+
+Set out on your new adventure:
 
 ```bash
 ./setup.sh YOUR_PROJECT_PATH
 ```
 
-This conjures up all the project-specific scripts and configs you'll need.
+This will conjure up a set of scripts and configuration files for the new project.
 
 ## Spell of protection 🛡️: back up your data
 
