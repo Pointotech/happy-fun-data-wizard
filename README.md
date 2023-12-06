@@ -1,8 +1,10 @@
 # Happy Fun Data Wizard by Pointotech 🧙‍♂️
 
-Why manually create schemas, model classes, or backups when you can have a wizard do it for you? Let's sprinkle some magic on your project!
+Why manually create schemas, model classes, or backups when you can have a wizard do it for you?
 
 ## Set up your new adventure 🏰
+
+Let's sprinkle some magic on your project!
 
 Gather your adventuring gear:
 

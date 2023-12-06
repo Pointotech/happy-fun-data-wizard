@@ -130,14 +130,15 @@ class DatabaseClient
   private static function getTablesMysql(DatabaseClient $database, string $databaseName): array
   {
     $rows = $database->get(
-      '
-                select
-                    ' . $database->informationSchemaColumnNames()->tableName() . ',
-                    DATA_LENGTH,
-                    INDEX_LENGTH
-                from information_schema.tables
-                where ' . $database->informationSchemaColumnNames()->tableSchema() . ' = ?
-            ',
+      <<<SQL
+        select
+          {$database->informationSchemaColumnNames()->tableName()},
+          DATA_LENGTH,
+          INDEX_LENGTH
+        from information_schema.tables
+        where {$database->informationSchemaColumnNames()->tableSchema()} = ?
+        and TABLE_TYPE = 'BASE TABLE'
+      SQL,
       [
         $databaseName
       ]
