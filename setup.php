@@ -61,6 +61,7 @@ $filesToSetUp = [
   'backUp.php' => 'The `backUp.php` implementation of the database backup script',
   'composer.json' => 'The `composer.json` PHP dependencies configuration',
   'composerInstall.sh' => 'The `composerInstall.sh` PHP dependencies installation script',
+  'README.md' => 'The `README.md` documentation file.',
 ];
 
 $missingFileNames = [];
@@ -69,7 +70,7 @@ foreach ($filesToSetUp as $fileToSetUpName => $fileToSetUpDescription) {
 
   $filePathInProject = "$projectDirectoryPath/$fileToSetUpName";
 
-  if (true || !file_exists($filePathInProject)) {
+  if (!file_exists($filePathInProject)) {
     $missingFileNames[] = $fileToSetUpName;
   }
 }
@@ -114,6 +115,12 @@ function expandTilde(string $path): string
   }
 }
 
+function parseProjectName(string $projectDirectoryPath): string
+{
+  $parts = explode('/', $projectDirectoryPath);
+  return $parts[count($parts) - 1];
+}
+
 if (count($missingFileNames)) {
 
   foreach ($missingFileNames as $missingFileName) {
@@ -121,6 +128,7 @@ if (count($missingFileNames)) {
     $fileToSetUpName = $missingFileName;
     $fileToSetUpDescription = $filesToSetUp[$missingFileName];
     $filePathInProject = "$projectDirectoryPath/$fileToSetUpName";
+    $projectName = parseProjectName($projectDirectoryPath);
 
     if (!file_exists($filePathInProject)) {
 
@@ -131,6 +139,7 @@ if (count($missingFileNames)) {
       $currentDirectorySimplified = str_replace($currentUserHomeDirectory, "~", __DIR__);
 
       $template = str_replace('$happyFunDataWizardDirectory', $currentDirectorySimplified, $template);
+      $template = str_replace('$projectName', $projectName, $template);
 
       $didWriteSucceed = file_put_contents($filePathInProject, $template);
 

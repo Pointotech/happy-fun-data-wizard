@@ -11,3 +11,5 @@ interactively ask for database credentials to put in .env during setup
 add an option for a base64-encoded password instead of a plain password since some code projects store their credentials this way
 
 make IgnoredDatabaseNames.json optional and document it
+
+create or update a Git repo during setup.php
