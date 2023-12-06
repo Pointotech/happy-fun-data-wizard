@@ -10,6 +10,8 @@ interface DatabaseClientConfiguration
 
     function password(): string;
 
+    function port(): ?int;
+
     /**
      * Name of the database.
      */

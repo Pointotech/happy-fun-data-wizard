@@ -29,6 +29,7 @@ if (file_exists($autoloadFilePath)) {
 }
 
 use Pointotech\CommandLine\CommandLineParameters;
+use Pointotech\Database\DatabaseType;
 
 set_error_handler(function (int $errorLevel, string $errorMessage, string $errorFilePath, int $errorLine, ?array $errorContext = null) {
   if ($errorContext) {
@@ -121,6 +122,41 @@ function parseProjectName(string $projectDirectoryPath): string
   return $parts[count($parts) - 1];
 }
 
+/**
+ * Prompt the user for input on the command line.
+ */
+function prompt(string $prompt): string
+{
+  echo $prompt;
+  return trim(fgets(STDIN));
+}
+
+/**
+ * Ask the user for database credentials on the command line.
+ */
+function promptForDatabaseCredentials(): array
+{
+  echo "\n";
+  echo "You will now be prompted for database credentials. These database credentials will be entered in the generated `.env` project configuration file, so that the Happy Fun Data Wizard scripts can access the database.\n";
+  echo "\n";
+
+  $dbHost = prompt("Enter database host: ");
+  $dbName = prompt("Enter database name: ");
+  $dbUser = prompt("Enter database username: ");
+  $dbPassword = prompt("Enter database password: ");
+  $dbType = prompt("Enter database type (supported: "
+    . DatabaseType::mysql()->name() . " and "
+    . DatabaseType::postgresql()->name() . "): ");
+
+  return [
+    'DATABASE_HOST' => $dbHost,
+    'DATABASE_NAME' => $dbName,
+    'DATABASE_USERNAME' => $dbUser,
+    'DATABASE_PASSWORD' => $dbPassword,
+    'DATABASE_TYPE' => $dbType,
+  ];
+}
+
 if (count($missingFileNames)) {
 
   foreach ($missingFileNames as $missingFileName) {
@@ -140,6 +176,18 @@ if (count($missingFileNames)) {
 
       $template = str_replace('$happyFunDataWizardDirectory', $currentDirectorySimplified, $template);
       $template = str_replace('$projectName', $projectName, $template);
+
+      if ($fileToSetUpName === '.env') {
+
+        $databaseCredentials = promptForDatabaseCredentials();
+
+        $template .= "\n";
+
+        // Insert database credentials into the `.env` template.
+        foreach ($databaseCredentials as $key => $value) {
+          $template .= "$key=$value\n";
+        }
+      }
 
       $didWriteSucceed = file_put_contents($filePathInProject, $template);
 

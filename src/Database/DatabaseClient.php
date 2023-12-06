@@ -304,7 +304,8 @@ class DatabaseClient
           $configuration->host(),
           $configuration->username(),
           $configuration->password(),
-          $this->databaseName()
+          $this->databaseName(),
+          $configuration->port()
         );
         $result->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, true);
         $result->set_charset('utf8');

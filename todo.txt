@@ -13,3 +13,5 @@ add an option for a base64-encoded password instead of a plain password since so
 make IgnoredDatabaseNames.json optional and document it
 
 create or update a Git repo during setup.php
+
+ask for database port during setup (after getting the database type) and use the default port for that database server by default

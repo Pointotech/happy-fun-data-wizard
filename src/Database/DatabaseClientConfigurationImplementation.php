@@ -5,6 +5,8 @@ namespace Pointotech\Database;
 use JsonSerializable;
 
 use Dotenv\Dotenv;
+
+use Pointotech\Collections\Dictionary;
 use Pointotech\Configuration\IncorrectConfiguration;
 
 class DatabaseClientConfigurationImplementation implements
@@ -35,6 +37,12 @@ class DatabaseClientConfigurationImplementation implements
   }
   private $_name;
 
+  function port(): ?int
+  {
+    return $this->_port;
+  }
+  private $_port;
+
   function type(): DatabaseType
   {
     return $this->_type;
@@ -49,6 +57,7 @@ class DatabaseClientConfigurationImplementation implements
       self::CONFIGURATION_KEY_DATABASE_PASSWORD => $this->password(),
       self::CONFIGURATION_KEY_DATABASE_NAME => $this->name(),
       self::CONFIGURATION_KEY_DATABASE_TYPE => $this->type(),
+      self::CONFIGURATION_KEY_DATABASE_PORT => $this->port(),
     ];
   }
 
@@ -65,6 +74,7 @@ class DatabaseClientConfigurationImplementation implements
     $this->_password = $configurationValues[self::CONFIGURATION_KEY_DATABASE_PASSWORD];
     $this->_name = $configurationValues[self::CONFIGURATION_KEY_DATABASE_NAME];
     $this->_type = DatabaseType::parse($configurationValues[self::CONFIGURATION_KEY_DATABASE_TYPE]);
+    $this->_port = Dictionary::getOrNull($configurationValues, self::CONFIGURATION_KEY_DATABASE_PORT);
   }
 
   private const CONFIGURATION_KEY_DATABASE_HOST = 'DATABASE_HOST';
@@ -76,6 +86,8 @@ class DatabaseClientConfigurationImplementation implements
   private const CONFIGURATION_KEY_DATABASE_NAME = 'DATABASE_NAME';
 
   private const CONFIGURATION_KEY_DATABASE_TYPE = 'DATABASE_TYPE';
+
+  private const CONFIGURATION_KEY_DATABASE_PORT = 'DATABASE_PORT';
 
   private const REQUIRED_CONFIGURATION_KEYS = [
     self::CONFIGURATION_KEY_DATABASE_HOST,
