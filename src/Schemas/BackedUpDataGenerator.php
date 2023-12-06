@@ -31,6 +31,8 @@ class BackedUpDataGenerator
 
       if (!List_::contains($ignoredDatabaseNames, $databaseName)) {
 
+        echo "Backing up database '$databaseName'...\n";
+
         $schema = CachedJsonSchemaGenerator::generate($projectDirectoryPath, $databaseName);
         $columnsByTableName = $schema[CachedJsonSchemaGenerator::SCHEMA_PROPERTY_NAME_columnsByTableName];
 
@@ -89,6 +91,18 @@ class BackedUpDataGenerator
 
   private const DATA_PROPERTY_NAME_dataVersion = 'dataVersion';
 
+  private static function quoteDatabaseName(string $databaseName): string
+  {
+    // TODO: Handle database names with backticks in them, if that's possible.
+    return "`" . $databaseName . "`";
+  }
+
+  private static function quoteTableName(string $tableName): string
+  {
+    // TODO: Handle table names with backticks in them, if that's possible.
+    return "`" . $tableName . "`";
+  }
+
   private static function backUpData(
     string $projectDirectoryPath,
     string $databaseName,
@@ -103,9 +117,9 @@ class BackedUpDataGenerator
     $countColumnExpression = count($primaryKeyNames) === 1 ? $primaryKeyNames[0] : '*';
     $rowsCountRow = $client->get(
       '
-                select count(' . $countColumnExpression . ') as count
-                from ' . $databaseName . '.' . $tableName . '
-            '
+        select count(' . $countColumnExpression . ') as count
+        from ' . self::quoteDatabaseName($databaseName) . '.' . self::quoteTableName($tableName) . '
+      '
     )[0];
     $rowsCount = Dictionary::get($rowsCountRow, 'count');
 
@@ -129,7 +143,7 @@ class BackedUpDataGenerator
     $sortDirection = $backupCriteria ? Dictionary::getOrNull($backupCriteria, 'sortDirection') : null;
     $groupByColumnValueToFileNameTransformation = $backupCriteria ? Dictionary::getOrNull($backupCriteria, 'groupByColumnValueToFileNameTransformation') : null;
 
-    $rowsQueryWithoutCriteria = 'select * from ' . $databaseName . '.' . $tableName;
+    $rowsQueryWithoutCriteria = 'select * from ' . self::quoteDatabaseName($databaseName) . '.' . self::quoteTableName($tableName);
     $rowsQuery = $rowsQueryWithoutCriteria
       . ($selectWhere ? (' where ' . $selectWhere) : '')
       . ($sortAndGroupByColumn ? (' order by ' . $sortAndGroupByColumn) : '')

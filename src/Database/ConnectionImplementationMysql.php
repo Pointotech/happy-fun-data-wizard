@@ -5,12 +5,21 @@ namespace Pointotech\Database;
 use Exception;
 use InvalidArgumentException;
 use mysqli;
+use mysqli_sql_exception;
 
 class ConnectionImplementationMysql implements Connection
 {
     function get(string $query, array $parameterValues = []): array
     {
-        $statement = $this->mysqli()->prepare($query);
+        try {
+            $statement = $this->mysqli()->prepare($query);
+        } catch (mysqli_sql_exception $error) {
+            throw new Exception(
+                $error->getMessage() . ".\n\nQuery: '" . trim($query) . "'.\n"
+                    . "Parameters: " . json_encode($parameterValues, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+                    . "\n\n"
+            );
+        }
 
         if ($statement === false) {
             throw new Exception($this->mysqli()->error);
