@@ -117,8 +117,8 @@ class WordSplitter
   {
     $wordsToSplit = JsonFileReader::readOrEmpty($projectDirectoryPath, 'WordsToSplit.json');
 
-    if (array_key_exists($input, $wordsToSplit)) {
-      return explode(' ', $wordsToSplit[$input]);
+    if (array_key_exists(mb_strtolower($input), $wordsToSplit)) {
+      return explode(' ', $wordsToSplit[mb_strtolower($input)]);
     }
 
     return preg_split('/[ _]/', $input);
